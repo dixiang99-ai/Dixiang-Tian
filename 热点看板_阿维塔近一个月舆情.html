@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>阿维塔近一个月网络热点舆情看板（分平台·区域·竞品参照版）</title>
+<style>
+  :root{
+    --surface-1:#fcfcfb; --page:#f9f9f7;
+    --ink-1:#0b0b0b; --ink-2:#52514e; --ink-muted:#898781;
+    --grid:#e1e0d9; --baseline:#c3c2b7; --ring:rgba(11,11,11,0.10);
+    --pos:#008300; --neu:#898781; --neg:#e34948;
+    --c1:#2a78d6; --c2:#eb6834; --c3:#1baf7a; --c4:#eda100; --c5:#4a3aa7; --c6:#e87ba4;
+    --shadow:0 1px 3px rgba(11,11,11,0.06),0 1px 2px rgba(11,11,11,0.04);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --surface-1:#1a1a19; --page:#0d0d0d;
+      --ink-1:#ffffff; --ink-2:#c3c2b7; --ink-muted:#898781;
+      --grid:#2c2c2a; --baseline:#383835; --ring:rgba(255,255,255,0.10);
+      --pos:#0ca30c; --neg:#e66767;
+      --c1:#3987e5; --c2:#d95926; --c3:#199e70; --c4:#c98500; --c5:#9085e9; --c6:#d55181;
+      --shadow:0 1px 3px rgba(0,0,0,0.4),0 1px 2px rgba(0,0,0,0.3);
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--page);color:var(--ink-1);line-height:1.5;padding:24px;font-size:14px}
+  .wrap{max-width:1360px;margin:0 auto}
+  header h1{font-size:22px;font-weight:700;letter-spacing:-0.01em}
+  header .sub{color:var(--ink-2);font-size:13px;margin-top:4px}
+  header .meta{color:var(--ink-muted);font-size:12px;margin-top:2px}
+  .design-note{background:var(--surface-1);border:1px solid var(--ring);border-radius:8px;padding:12px 16px;margin:16px 0;font-size:12.5px;color:var(--ink-2)}
+  .design-note b{color:var(--ink-1)}
+  .warn-note{background:rgba(237,161,0,0.10);border:1px solid rgba(237,161,0,0.3);border-radius:8px;padding:10px 14px;margin:16px 0;font-size:12px;color:var(--ink-2)}
+  .warn-note b{color:var(--ink-1)}
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+  .kpi{background:var(--surface-1);border:1px solid var(--ring);border-radius:10px;padding:16px;box-shadow:var(--shadow)}
+  .kpi .num{font-size:30px;font-weight:700;line-height:1.1}
+  .kpi .lbl{color:var(--ink-2);font-size:12px;margin-top:2px}
+  .kpi.pos .num{color:var(--pos)} .kpi.neg .num{color:var(--neg)} .kpi.neu .num{color:var(--ink-2)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+  .card{background:var(--surface-1);border:1px solid var(--ring);border-radius:10px;padding:16px 18px;box-shadow:var(--shadow);margin:16px 0}
+  .card h3{font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h3 .tag{font-size:11px;color:var(--ink-muted);font-weight:400;margin-left:auto}
+  .donut-wrap{display:flex;align-items:center;gap:20px}
+  .donut{width:150px;height:150px;border-radius:50%;flex-shrink:0;position:relative}
+  .donut::after{content:"";position:absolute;inset:34px;background:var(--surface-1);border-radius:50%}
+  .donut .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1}
+  .donut .center .n{font-size:24px;font-weight:700}
+  .donut .center .l{font-size:11px;color:var(--ink-muted)}
+  .legend{display:flex;flex-direction:column;gap:8px;font-size:12.5px}
+  .legend .row{display:flex;align-items:center;gap:8px}
+  .legend .sw{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+  .legend .val{margin-left:auto;font-weight:600;font-variant-numeric:tabular-nums}
+  .bars{display:flex;flex-direction:column;gap:9px}
+  .bar-row{display:grid;grid-template-columns:118px 1fr 40px;align-items:center;gap:10px;font-size:12.5px}
+  .bar-row .name{color:var(--ink-2)}
+  .bar-track{height:20px;background:var(--grid);border-radius:4px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:4px}
+  .bar-row .cnt{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+  .ps-row{display:grid;grid-template-columns:130px 1fr 78px;align-items:center;gap:10px;font-size:12px;margin-bottom:9px}
+  .ps-row .name{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ps-track{height:22px;border-radius:4px;overflow:hidden;display:flex}
+  .ps-seg{height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:600}
+  .ps-row .tot{text-align:right;color:var(--ink-muted);font-variant-numeric:tabular-nums}
+  .tl-axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-muted);margin-bottom:4px;padding:0 2px}
+  .tl-bars{display:flex;gap:2px;height:190px;border-bottom:1px solid var(--baseline);position:relative}
+  .tl-bar{flex:1;height:100%;display:flex;flex-direction:column-reverse;justify-content:flex-start;min-width:0;position:relative;cursor:pointer}
+  .tl-seg{width:100%}
+  .tl-bar .tip{display:none;position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--ink-1);color:var(--surface-1);padding:6px 10px;border-radius:6px;font-size:11px;z-index:10;pointer-events:none;margin-bottom:4px;box-shadow:0 2px 8px rgba(0,0,0,0.2);max-width:280px;text-align:center}
+  .tl-bar:hover .tip{display:block}
+  .legend-inline{display:flex;gap:16px;margin-top:10px;font-size:12px;flex-wrap:wrap;align-items:center}
+  .legend-inline .row{display:flex;align-items:center;gap:6px}
+  .legend-inline .sw{width:12px;height:12px;border-radius:3px}
+  .events{position:relative;margin-top:12px;padding-left:8px}
+  .events::before{content:"";position:absolute;left:14px;top:8px;bottom:8px;width:2px;background:var(--grid)}
+  .ev{position:relative;padding:0 0 16px 32px}
+  .ev::before{content:"";position:absolute;left:8px;top:4px;width:14px;height:14px;border-radius:50%;border:3px solid var(--surface-1);box-shadow:0 0 0 1px var(--ring)}
+  .ev.pos::before{background:var(--pos)} .ev.neg::before{background:var(--neg)} .ev.neu::before{background:var(--ink-2)}
+  .ev .date{font-size:11px;color:var(--ink-muted);font-weight:600}
+  .ev .ttl{font-size:13px;font-weight:600;margin:1px 0}
+  .ev .desc{font-size:12px;color:var(--ink-2)}
+  .ev .pf{display:inline-block;font-size:10px;background:var(--grid);color:var(--ink-2);padding:0 6px;border-radius:8px;margin-left:6px;font-weight:600}
+  .ev .ref{font-size:11px;color:var(--ink-muted);margin-top:2px}
+  .ev .ref a{color:var(--c1);text-decoration:none}
+  /* 区域卡片 */
+  .region-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .region{background:var(--page);border:1px solid var(--ring);border-radius:8px;padding:12px 14px}
+  .region h4{font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:6px}
+  .region .status{font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:auto}
+  .region .status.ok{background:rgba(0,131,0,0.12);color:var(--pos)}
+  .region .status.warn{background:rgba(227,73,72,0.12);color:var(--neg)}
+  .region .status.mid{background:rgba(237,161,0,0.15);color:#9a6b00}
+  .region p{font-size:11.5px;color:var(--ink-2);margin-bottom:4px}
+  .region .ref{font-size:10.5px;color:var(--ink-muted)}
+  .region .ref a{color:var(--c1);text-decoration:none}
+  /* 表格通用 */
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+  .filters label{font-size:12px;color:var(--ink-2)}
+  .filters select{font:inherit;font-size:12px;padding:5px 10px;border:1px solid var(--ring);border-radius:6px;background:var(--surface-1);color:var(--ink-1);cursor:pointer;max-width:150px}
+  .filters button{font:inherit;font-size:12px;padding:5px 12px;border:1px solid var(--ring);border-radius:6px;background:var(--grid);color:var(--ink-1);cursor:pointer}
+  .filters button.active{background:var(--c1);color:#fff;border-color:var(--c1)}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{text-align:left;padding:8px 8px;border-bottom:1px solid var(--baseline);color:var(--ink-2);font-weight:600;white-space:nowrap;cursor:pointer;user-select:none}
+  th:hover{color:var(--ink-1)}
+  td{padding:7px 8px;border-bottom:1px solid var(--grid);vertical-align:top}
+  tr:hover td{background:var(--page)}
+  .pill{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+  .pill.pos{background:rgba(0,131,0,0.12);color:var(--pos)}
+  .pill.neu{background:rgba(137,135,129,0.15);color:var(--ink-2)}
+  .pill.neg{background:rgba(227,73,72,0.12);color:var(--neg)}
+  .pill.pf{background:rgba(42,120,214,0.12);color:var(--c1)}
+  .pill.ref{background:rgba(74,58,167,0.12);color:var(--c5)}
+  .id{font-family:ui-monospace,monospace;font-size:11px;color:var(--ink-muted);font-weight:600}
+  .src{color:var(--ink-2);font-size:11px}
+  .reach{color:var(--ink-muted);font-size:11px;white-space:nowrap}
+  .ttl-cell{max-width:300px}
+  .ttl-cell a{color:var(--ink-1);text-decoration:none}
+  .ttl-cell a:hover{color:var(--c1);text-decoration:underline}
+  .count-note{font-size:12px;color:var(--ink-muted)}
+  .judge{font-size:11px;font-weight:600;white-space:nowrap}
+  .judge.ok{color:var(--pos)} .judge.deriv{color:#9a6b00} .judge.risk{color:var(--neg)}
+  footer{margin-top:24px;padding-top:16px;border-top:1px solid var(--grid);font-size:11.5px;color:var(--ink-muted)}
+  @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.region-grid{grid-template-columns:repeat(2,1fr)}.donut-wrap{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>阿维塔近一个月网络热点舆情看板（分平台·华中区域·竞品参照版）</h1>
+    <div class="sub">数据周期：2026-07-23 ~ 2026-08-23 ｜ 阿维塔自身舆情 <b id="total-self">67</b> 条 ｜ 参照信息（竞品同期/业务节点）21 条 ｜ 第三轮深化</div>
+    <div class="meta">来源：豆包搜索 API 分平台检索 + 华中区域本地渠道 + 竞品同期参照 + 业务节点核实。小红书/抖音/知乎站内原生内容未直接召回，已如实标注。</div>
+  </header>
+
+  <div class="design-note">
+    <b>看板设计逻辑：</b>主视图仍为<b>「时间线」</b>（每日声量走势），<b>「来源平台」为次级筛选</b>（含华中区域渠道）。本版新增三个业务场景模块：<b>①华中区域渠道视图</b>（区域口碑不进全国大平台但影响区域业务）；<b>②竞品同期参照</b>（判断阿维塔声量处于行业什么位置）；<b>③业务节点×舆情对应</b>（区分"业务动作的正常反应"与"需额外干预的独立风险"）。情感统计仅计阿维塔自身 67 条，竞品参照不计入。
+  </div>
+  <div class="warn-note">
+    <b>平台数据可得性：</b>小红书、抖音/快手、知乎站内原生内容未直接召回，不编造该平台数据；相关判断标注"间接证据/量级不明"。华中区域本地渠道已检索湖北/安徽/河南/湖南四地。
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="num" id="kpi-total">-</div><div class="lbl">阿维塔自身信息（条）</div></div>
+    <div class="kpi pos"><div class="num" id="kpi-pos">-</div><div class="lbl" id="kpi-pos-lbl">正面</div></div>
+    <div class="kpi neu"><div class="num" id="kpi-neu">-</div><div class="lbl" id="kpi-neu-lbl">中性</div></div>
+    <div class="kpi neg"><div class="num" id="kpi-neg">-</div><div class="lbl" id="kpi-neg-lbl">负面</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>情感倾向分布 <span class="tag">仅阿维塔自身67条</span></h3>
+      <div class="donut-wrap">
+        <div class="donut" id="donut"><div class="center"><div class="n" id="donut-n">67</div><div class="l">自身条目</div></div></div>
+        <div class="legend" id="sent-legend"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>来源平台分布 <span class="tag">含华中区域渠道</span></h3>
+      <div class="bars" id="platform-bars"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>平台 × 情感对比（平台间差异视图） <span class="tag">判断是否需跨平台统一口径</span></h3>
+    <div id="ps-chart"></div>
+    <div class="legend-inline">
+      <div class="row"><span class="sw" style="background:var(--pos)"></span>正面</div>
+      <div class="row"><span class="sw" style="background:var(--neu)"></span>中性</div>
+      <div class="row"><span class="sw" style="background:var(--neg)"></span>负面</div>
+      <div class="row" style="color:var(--ink-muted);margin-left:auto">注：小红书/抖音/知乎未直接召回，未单列</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>话题类型分布 <span class="tag">识别话题集中点</span></h3>
+    <div class="bars" id="topic-bars"></div>
+  </div>
+
+  <div class="card">
+    <h3>每日声量走势（主视图） <span class="tag">按日聚合·仅阿维塔自身·可用平台筛选</span></h3>
+    <div class="filters" style="margin-bottom:10px">
+      <label>按平台查看：<select id="pf-filter"><option value="">全部平台</option></select></label>
+      <span class="count-note" id="tl-note"></span>
+    </div>
+    <div class="tl-axis"><span>07-07</span><span>07-15</span><span>07-23</span><span>08-01</span><span>08-08</span><span>08-16</span><span>08-23</span></div>
+    <div class="tl-bars" id="tl-bars"></div>
+    <div class="legend-inline">
+      <div class="row"><span class="sw" style="background:var(--pos)"></span>正面</div>
+      <div class="row"><span class="sw" style="background:var(--neu)"></span>中性</div>
+      <div class="row"><span class="sw" style="background:var(--neg)"></span>负面</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>关键事件时间轴 <span class="tag">标注来源平台与素材编号</span></h3>
+    <div class="events" id="events"></div>
+  </div>
+
+  <!-- 新增：华中区域渠道视图 -->
+  <div class="card">
+    <h3>华中区域渠道视图（湖北/安徽/河南/湖南） <span class="tag">区域口碑不进全国大平台但影响区域业务</span></h3>
+    <div class="region-grid">
+      <div class="region">
+        <h4>武汉/湖北 <span class="status ok">支点·正面</span></h4>
+        <p>全国首批、<b>华中唯一</b>阿维塔旗舰店（东西湖长信店）7月开业，7500㎡五层独栋2.0标准，本地融媒《看见网谷》报道；年销13亿汽车小镇六品牌之一。</p>
+        <p class="ref">素材 G01/G02 · <a href="http://m.dongxihuqu.app.dawuhanapp.com/p/9715.html" target="_blank">查看原文</a></p>
+      </div>
+      <div class="region">
+        <h4>合肥/安徽 <span class="status warn">最高风险</span></h4>
+        <p>07跑偏事件被<b>凤凰网安徽+合淝通+安徽论坛+皖美生活圈4家地方蓝V</b>报道，30余车主同款问题，涉包河店（判无异常）/庐阳店（承认故障）结论矛盾，品牌未回应。</p>
+        <p class="ref">素材 G04/G05/G06 · <a href="https://m.weibo.cn/detail/5327037491052691" target="_blank">查看原文</a></p>
+      </div>
+      <div class="region">
+        <h4>郑州/河南 <span class="status mid">渠道密·需规范</span></h4>
+        <p>郑州9家门店为华中最密（正弘城/熙地港/万象城等），梧桐店7/26推06置换2万/06T置换0.4万限时促销；平顶山/信阳/安阳等8城有网点。注意促销承诺兑现（对标问界积分门）。</p>
+        <p class="ref">素材 G07 · <a href="https://dealer.yiche.com/100235508/news.html" target="_blank">查看原文</a></p>
+      </div>
+      <div class="region">
+        <h4>长沙/湖南 <span class="status mid">口碑空白</span></h4>
+        <p>5店覆盖（四方坪/雨花/凯德壹等），但中南汽车世界店车质网售后评分<b>0.0（无评价沉淀）</b>；湖南省首台07L于8/17提车（汽车之家论坛）。</p>
+        <p class="ref">素材 G08/G09/G10 · <a href="https://www.12365auto.com/dealer/index/118598.shtml" target="_blank">查看原文</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增：竞品同期参照 -->
+  <div class="card">
+    <h3>竞品同期舆情参照（2026-07-23 ~ 08-23） <span class="tag">判断阿维塔声量的行业相对位置</span></h3>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>竞品</th><th>8月核心舆情</th><th>情感</th><th>声量/销量参照</th><th>与阿维塔关联</th></tr></thead>
+      <tbody>
+        <tr><td><b>小米</b></td><td>YU7热销（18小时锁单24万、两月交付4万+，SU7+YU7累计70万）但遭AI合成事故视频/"起火维权"词条批量抹黑；官方+司法反击，百万粉博主损害商品声誉罪获刑1年8个月（H12）</td><td><span class="pill pos">正面为主</span></td><td>现象级声量，H1交付18.5万</td><td>阿维塔声量明显落后；小米司法打击黑公关是阿维塔F02悬赏维权的进阶参照</td></tr>
+        <tr><td><b>问界</b></td><td>M7"疯狂加速事故"罗生门（官方数据回应，H01）；口碑腰斩讨论：7月销量4万+→2万出头，M7换代背刺（H02）；赛力斯中报巨亏17.17亿（H03）；福州积分门（H04）；车质网投诉率高（H05）</td><td><span class="pill neg">负面集中</span></td><td>7月约2万+，同比腰斩</td><td>同属华为智驾阵营，问界安全争议提示阿维塔智驾投诉应对应对标"数据公开"打法；问界腰斩反衬07L窗口机会</td></tr>
+        <tr><td><b>极氪</b></td><td>跨境锁车30余小时→上线"跨境守护"（H06）；7X充电站起火→专项组（H07）；召回92658辆007/X（H08）；但H1交付17.8万+97%、7月销量创历史新高（H09）</td><td><span class="pill neu">负面/销量强</span></td><td>7月历史新高</td><td>极氪锁车事件正是阿维塔F01拉踩翻车的素材源；极氪"边负面边热销"证明快速响应可对冲安全舆情</td></tr>
+        <tr><td><b>蔚来</b></td><td>李斌"电池论"被断章取义发道歉视频（H10，与雍军误读同类）；法务部报案乐道谣言（H11）；乐道客服/萤火虫故障投诉；神行者抄袭ES8渲染图（H13）</td><td><span class="pill neg">负面为主</span></td><td>7月交付3.59万+71%</td><td>李斌"道歉叙事"与阿维塔高管言论管理同课题；蔚来J.D.Power服务标杆是"智美七星"对标</td></tr>
+    </tbody>
+    </table>
+    </div>
+    <p class="count-note" style="margin-top:8px">参照素材编号 H01–H13，可在明细表筛选"竞品参照"渠道查看原文链接。<b>相对位置判断：</b>阿维塔声量明显落后于小米/问界/极氪/蔚来（月销均2万+），处于行业中下游；但垂直平台产品口碑（4.57–4.75分）与07L上市后环比改善（企查查I08称7月口碑排名升30位至第2）是亮点。</p>
+  </div>
+
+  <!-- 新增：业务节点×舆情对应 -->
+  <div class="card">
+    <h3>业务节点 × 舆情对应（区分正常反应与独立风险） <span class="tag">决定应对建议性质：维持观察 or 额外干预</span></h3>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>日期</th><th>业务动作/节点</th><th>同期舆情反应</th><th>对应判断</th></tr></thead>
+      <tbody>
+        <tr><td>07-22</td><td>07第10万辆下线+进入埃及+与中国电信签约（A08）</td><td>声量平稳，正面小高峰</td><td><span class="judge ok">正常反应·维持节奏</span></td></tr>
+        <tr><td>07-27</td><td>07L预售期（7/17起2000抵5000）创作者社群运营</td><td>"拉踩极氪"事件（F01/B08）：官方群引导创作者借极氪锁车热点拉踩竞品，截图流出多平台传播</td><td><span class="judge risk">执行事故·需管理干预</span>（供应商审核漏洞，非正常业务反应）</td></tr>
+        <tr><td>08-01/02</td><td>7月销量公布：交付7626辆（A04）</td><td>销量负面集中（B05零售3853排第60、D01"败给外观定价"）</td><td><span class="judge deriv">周期性反应+实质压力</span>（月度数据常规反应，但同比-53%是实质问题；07L上市后8月数据有望改善，维持观察+主动对冲）</td></tr>
+        <tr><td>08-07</td><td>人民日报第2版报道柔性制造（A01）</td><td>正面声量</td><td><span class="judge ok">正常反应·维持节奏</span></td></tr>
+        <tr><td>08-08</td><td><b>07L正式上市</b>（A02）+央视频直播120万人观看（F08）</td><td>8/8–8/10全月声量最高峰，正面为主</td><td><span class="judge ok">正常反应·维持节奏</span>（上市营销预期内高峰）</td></tr>
+        <tr><td>08-08</td><td>发布会沟通会：雍军"非必要项"表述</td><td>8/10"华为合作非必要项"误读（A03/A07），8/14雍军再回应</td><td><span class="judge deriv">业务动作衍生风险·已处置</span>（高管发言被断章取义，已快速辟谣；需建立口径预审机制防再发）</td></tr>
+        <tr><td>08-11</td><td>陈卓群访/专访密集发声（I03/I04/I05）</td><td>电量清零+刹车衰减集体投诉（E02）</td><td><span class="judge risk">独立风险·需专项干预</span>（与业务节点无关的质量个案）</td></tr>
+        <tr><td>08-16</td><td>华为员工5000台交付（A05）+长安华为签全域协议（F03）</td><td>正面声量，对冲合作疑虑</td><td><span class="judge ok">正常反应·可放大</span></td></tr>
+        <tr><td>08-20</td><td>数智工厂取消高温假保交付（A06）</td><td>"热销"间接信号传播</td><td><span class="judge ok">正常反应·维持节奏</span></td></tr>
+        <tr><td>08-21</td><td>成都车展全系亮相（A09）</td><td>8/21–23"追星购车"热搜阅读破5000万（A10），评价两极</td><td><span class="judge deriv">正常反应+需监测</span>（车展营销预期内，"孝顺争议"两极评价需监测不主动放大）</td></tr>
+        <tr><td>08-22</td><td>—（无对应业务节点）</td><td>07Pro+急刹致儿童受伤投诉（E01）</td><td><span class="judge risk">独立风险·最高优先级</span>（与业务节点无关，涉人身安全）</td></tr>
+        <tr><td>08-01</td><td>—（无对应业务节点）</td><td>合肥07跑偏批量故障曝光（E03/G04/G05）</td><td><span class="judge risk">独立风险·需专项干预</span>（区域质量个案，非业务动作引发）</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="count-note" style="margin-top:8px"><b>结论：</b>本月声量波动<b>大部分可由业务节点解释</b>（07L上市高峰、车展热搜、人民日报报道均为正常反应）；<b>需额外干预的是三类独立于业务动作的风险</b>：①质量安全个案（E01/E02/E03）；②营销执行事故（F01拉踩）；③销量同比实质压力（需数据对冲而非辩解）。</p>
+  </div>
+
+  <div class="card">
+    <h3>素材明细（全量88条·可筛选回查） <span class="tag">含华中区域/竞品参照/业务节点，点击标题跳转原文</span></h3>
+    <div class="filters">
+      <label>渠道<select id="f-channel"><option value="">全部</option></select></label>
+      <label>平台<select id="f-platform"><option value="">全部</option></select></label>
+      <label>情感<select id="f-sentiment"><option value="">全部</option><option>正面</option><option>中性</option><option>负面</option></select></label>
+      <label>话题<select id="f-topic"><option value="">全部</option></select></label>
+      <button id="f-reset">重置</button>
+      <span class="count-note" id="count-note"></span>
+    </div>
+    <div style="overflow-x:auto">
+    <table id="tbl">
+      <thead><tr>
+        <th data-k="id">编号</th><th data-k="date">日期</th><th>渠道</th><th>平台</th>
+        <th>来源/标题</th><th data-k="topic">话题</th><th data-k="sentiment">情感</th><th>传播量</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    </div>
+  </div>
+
+  <footer>
+    阿维塔传播/公关团队 · 分平台·区域·竞品参照舆情看板 · 生成于 2026-08-23 ｜ 阿维塔自身67条+参照21条，全部来自公开可查网络信息。华中区域覆盖湖北/安徽/河南/湖南；竞品参照覆盖问界/极氪/蔚来/小米。小红书/抖音/知乎站内数据未直接召回，已如实标注。
+  </footer>
+</div>
+
+<script>
+const DATA = [
+  {"id":"A01","date":"2026-08-07","channel":"主流媒体","platform":"主流媒体","source":"人民日报","title":"人民日报聚焦阿维塔柔性制造：18天个性化交付","sentiment":"正面","topic":"品牌制造","reach":"央媒头版","url":"https://www.ccag.cn/news/detail/2087358659136229377"},
+  {"id":"A02","date":"2026-08-08","channel":"主流媒体","platform":"主流媒体","source":"新华网","title":"阿维塔07L上市 22.99万起 全系标配华为ADS 5(Elite为Pro增强版/中高配896线激光雷达+ADS 5 Max)","sentiment":"正面","topic":"产品上市","reach":"多媒体报道","url":"http://www.xinhuanet.com/auto/20260809/03a6ea97a15e494386e5a521140b8303/c.html"},
+  {"id":"A03","date":"2026-08-10","channel":"主流媒体","platform":"主流媒体","source":"央广网","title":"阿维塔辟谣'与华为合作非必要项'：系言论误读","sentiment":"中性","topic":"华为合作","reach":"非常权威源","url":"http://www.cnr.cn/jingji/ycbd/20260810/t20260810_527756876.shtml"},
+  {"id":"A04","date":"2026-08-02","channel":"主流媒体","platform":"主流媒体","source":"IT之家","title":"阿维塔7月交付7626辆 1-7月累计约35245辆","sentiment":"中性","topic":"销量","reach":"官方数据","url":"https://www.ithome.com/0/984/452.htm"},
+  {"id":"A05","date":"2026-08-16","channel":"主流媒体","platform":"主流媒体","source":"央广网","title":"阿维塔向华为员工交付超5000台 首批07L交车","sentiment":"正面","topic":"品牌合作","reach":"央媒报道","url":"http://www.cnr.cn/tech/techph/20260817/t20260817_527773290.shtml"},
+  {"id":"A06","date":"2026-08-20","channel":"主流媒体","platform":"主流媒体","source":"新京报","title":"阿维塔数智工厂取消高温假 全力保07L交付","sentiment":"正面","topic":"产品交付","reach":"新京报独家","url":"https://www.bjnews.com.cn/detail/1787228274129317.html"},
+  {"id":"A07","date":"2026-08-13","channel":"主流媒体","platform":"主流媒体","source":"界面新闻","title":"阿维塔到底需不需要华为 合作模式引发讨论","sentiment":"中性","topic":"华为合作","reach":"界面原创","url":"https://news.china.com/socialgd/10000169/20260813/49673701.html"},
+  {"id":"A08","date":"2026-08-02","channel":"主流媒体","platform":"主流媒体","source":"中关村在线","title":"阿维塔07进入埃及市场 07累计10万辆下线","sentiment":"正面","topic":"出海合作","reach":"科技媒体","url":"https://auto.zol.com.cn/1224/12247337.html"},
+  {"id":"A09","date":"2026-08-21","channel":"主流媒体","platform":"主流媒体","source":"央广网","title":"成都车展阿维塔携全系车型亮相4号馆","sentiment":"正面","topic":"营销品牌","reach":"央媒报道","url":"http://auto.cnr.cn/djfb/20260821/t20260821_527785273.shtml"},
+  {"id":"A10","date":"2026-08-21","channel":"主流媒体","platform":"主流媒体","source":"新浪","title":"成都车展'追星式购车'热搜 阅读量破5000万","sentiment":"中性","topic":"营销品牌","reach":"阅读破5000万","url":"https://k.sina.com.cn/article_7880068204_1d5b04c6c06801fxee.html"},
+  {"id":"B01","date":"2026-08-10","channel":"微博","platform":"微博","source":"微博@小祝缘","title":"07L热销用户催交付 工厂取消高温假","sentiment":"正面","topic":"产品营销","reach":"量级不明","url":"https://m.weibo.cn/detail/5335113094400952"},
+  {"id":"B02","date":"2026-08-09","channel":"微博","platform":"微博","source":"微博多账号","title":"#阿维塔CEO看张凌赫的眼神#上热搜","sentiment":"正面","topic":"营销品牌","reach":"热搜话题","url":"https://www.sina.cn/news/detail/5330134505619685.html"},
+  {"id":"B03","date":"2026-08-10","channel":"微博","platform":"微博","source":"微博@clcc豪车老虎","title":"质疑仅靠张凌赫代言销量难起 营销偏弱","sentiment":"负面","topic":"营销品牌","reach":"量级不明","url":"https://m.weibo.cn/detail/5330743393780267"},
+  {"id":"B04","date":"2026-08-01","channel":"微博","platform":"微博","source":"微博@宁昌致远","title":"2026智驾排名 华为乾崑ADS居首 阿维塔第一梯队","sentiment":"正面","topic":"技术智驾","reach":"量级不明","url":"https://m.weibo.cn/detail/5324090738999883"},
+  {"id":"B05","date":"2026-08-03","channel":"微博","platform":"微博","source":"微博@何先生CarEngineer","title":"7月零售3853辆排第60 环比降1115辆","sentiment":"负面","topic":"销量","reach":"附销量图","url":"https://m.weibo.cn/detail/5330764933631237"},
+  {"id":"B06","date":"2026-08-01","channel":"微博","platform":"微博","source":"微博@安徽论坛","title":"合肥07五次检修未解决跑偏 30余车主同款问题","sentiment":"负面","topic":"质量维权","reach":"地方蓝V","url":"https://m.weibo.cn/detail/5327134643980375"},
+  {"id":"B07","date":"2026-08-21","channel":"微博","platform":"微博","source":"微博@阿维塔官微","title":"成都车展阿维塔全系阵容 打卡领周边","sentiment":"正面","topic":"营销品牌","reach":"官方账号","url":"https://m.weibo.cn/detail/5334276717674989"},
+  {"id":"B08","date":"2026-07-27","channel":"微博","platform":"微博","source":"微博@倚天Video","title":"#阿维塔企业群贴脸拉踩极氪# 引导拉踩竞品","sentiment":"负面","topic":"营销合规","reach":"微博话题","url":"https://m.weibo.cn/detail/5325327209333377"},
+  {"id":"C01","date":"2026-08-19","channel":"汽车垂直平台","platform":"汽车之家","source":"汽车之家论坛","title":"07L到店试驾：内饰/NCA智驾/底盘/隔音超预期","sentiment":"正面","topic":"产品评测","reach":"53浏览","url":"https://club.m.autohome.com.cn/bbs/thread/034c3c1b39f9fa6c/115890739-1.html"},
+  {"id":"C02","date":"2026-08-05","channel":"汽车垂直平台","platform":"汽车之家","source":"汽车之家论坛","title":"07L深度试驾优缺点：空间智驾好评 音响减配无增程","sentiment":"中性","topic":"产品评测","reach":"论坛帖","url":"https://club.m.autohome.com.cn/bbs/threadowner/49750fd7e00d2b2b/115783667-1.html"},
+  {"id":"C03","date":"2026-08-18","channel":"汽车垂直平台","platform":"汽车之家","source":"汽车之家论坛","title":"07L上市十天：800V超充/鸿蒙座舱好评 车机偶发bug","sentiment":"正面","topic":"产品评测","reach":"5074浏览","url":"https://club.m.autohome.com.cn/bbs/thread/ad6d7bcc60c2f4b8/115879932-1.html"},
+  {"id":"C04","date":"2026-07-26","channel":"汽车垂直平台","platform":"汽车之家","source":"汽车之家论坛","title":"07L试乘对比老款07：后排空间大幅改善","sentiment":"正面","topic":"产品评测","reach":"106浏览","url":"https://club.m.autohome.com.cn/bbs/thread/e5a02d99145364cc/115697607-1.html"},
+  {"id":"C05","date":"2026-07-25","channel":"汽车垂直平台","platform":"汽车之家","source":"汽车之家论坛","title":"07L智驾体验：896线激光雷达+ADS5全系标配良心","sentiment":"正面","topic":"技术智驾","reach":"1351浏览","url":"https://club.m.autohome.com.cn/bbs/thread/0f9095d221464ade/115689843-1.html"},
+  {"id":"C06","date":"2026-08-18","channel":"汽车垂直平台","platform":"易车","source":"易车","title":"问界M6 vs 阿维塔07L对比：智驾空间认可 品牌认知待提升","sentiment":"中性","topic":"竞品对比","reach":"易车点评","url":"https://car.yiche.com/dianping/12154-12372.html"},
+  {"id":"C07","date":"2026-08-19","channel":"汽车垂直平台","platform":"汽车之家","source":"汽车之家论坛","title":"07L线下实火：周末到店试驾排队 车友群订车扎堆","sentiment":"正面","topic":"市场热度","reach":"267浏览","url":"https://club.m.autohome.com.cn/bbs/thread/b34a9e52e530e607/115889246-1.html"},
+  {"id":"C08","date":"2026-08-17","channel":"汽车垂直平台","platform":"汽车之家","source":"汽车之家论坛","title":"00后女司机07L Max+提车日记：本市首提 落地27.28万","sentiment":"正面","topic":"车主提车","reach":"3831浏览","url":"https://club.m.autohome.com.cn/bbs/thread/1919e233ffe60896/115876843-1.html"},
+  {"id":"C09","date":"2026-08-17","channel":"汽车垂直平台","platform":"汽车之家","source":"汽车之家论坛","title":"喜提湖南省首台07L：华为智驾5.0丝滑 空间大充电快","sentiment":"正面","topic":"车主提车","reach":"22浏览","url":"https://club.m.autohome.com.cn/bbs/thread/994849f371a38ea1/115877678-1.html"},
+  {"id":"C10","date":"2026-08-19","channel":"汽车垂直平台","platform":"汽车之家","source":"汽车之家口碑","title":"07L口碑4.57分(49人) 06T口碑4.50分(20人)","sentiment":"中性","topic":"口碑数据","reach":"49人评4.57","url":"https://k.m.autohome.com.cn/8663"},
+  {"id":"C11","date":"2026-08-14","channel":"汽车垂直平台","platform":"易车","source":"易车口碑","title":"07L Max+车主评分4.75 盐城 夏季实际续航500km","sentiment":"正面","topic":"车主口碑","reach":"易车4.75分","url":"https://dianping.m.yiche.com/aweita07l/koubei/9945193208707584/"},
+  {"id":"C12","date":"2026-07-29","channel":"汽车垂直平台","platform":"车质网","source":"车质网口碑","title":"阿维塔11车主口碑4.0：外观智驾好评 后排头部压抑","sentiment":"中性","topic":"车主口碑","reach":"车质网4.2分","url":"https://m.12365auto.com/review/3389_0_0_1.shtml"},
+  {"id":"C13","date":"2026-08-01","channel":"汽车垂直平台","platform":"搜狐汽车","source":"搜狐汽车口碑","title":"阿维塔12 EV评分4.68 外观优于85%同级","sentiment":"中性","topic":"口碑数据","reach":"搜狐4.68分","url":"https://db.auto.sohu.com/model_7172/dianping"},
+  {"id":"D01","date":"2026-08-04","channel":"行业分析","platform":"今日头条","source":"今日头条","title":"全系月销不足4000台 阿维塔败给外观与定价","sentiment":"负面","topic":"销量策略","reach":"头条文章","url":"http://m.toutiao.com/group/7673695542228075042/"},
+  {"id":"D02","date":"2026-08-14","channel":"行业分析","platform":"ZAKER","source":"ZAKER","title":"阿维塔或成弃子？H1销量腰斩 轻资产模式受质疑","sentiment":"负面","topic":"品牌战略","reach":"ZAKER","url":"https://app.myzaker.com/news/article.php?pk=6a88dc487f780b2e6b000000"},
+  {"id":"D03","date":"2026-08-15","channel":"行业分析","platform":"ZAKER","source":"ZAKER","title":"阿维塔太窘了：HI模式获客成本高 新品空窗","sentiment":"负面","topic":"品牌战略","reach":"ZAKER","url":"https://app.myzaker.com/news/article.php?pk=6a64a1a88e9f092ea42610c0"},
+  {"id":"D04","date":"2026-08-13","channel":"行业分析","platform":"新浪","source":"新浪","title":"30-40万智驾轿车横评 阿维塔12智驾领先","sentiment":"正面","topic":"技术对比","reach":"新浪","url":"https://www.sina.cn/news/article/nincaey4970055.html"},
+  {"id":"D05","date":"2026-07-29","channel":"行业分析","platform":"新浪看点","source":"新浪看点","title":"阿维塔12华为全家桶评测：智驾强 但换代快背刺老车主","sentiment":"中性","topic":"产品争议","reach":"新浪看点","url":"https://k.sina.cn/article_7879849146_1d5acf4ba01901hnn6.html"},
+  {"id":"D06","date":"2026-08-20","channel":"行业分析","platform":"中关村在线","source":"中关村在线","title":"30万增程SUV横评 阿维塔07 vs 问界M5","sentiment":"中性","topic":"竞品对比","reach":"中关村在线","url":"https://auto.zol.com.cn/1235/12352956.html"},
+  {"id":"D07","date":"2026-08-12","channel":"行业分析","platform":"网易新闻","source":"网易新闻","title":"阿维塔07L瞄准家庭市场冲量 年底21家旗舰店","sentiment":"中性","topic":"产品战略","reach":"网易","url":"https://c.m.163.com/news/a/L4SD1KM1052792S9.html"},
+  {"id":"D08","date":"2026-08-16","channel":"行业分析","platform":"ITBear","source":"ITBear科技资讯","title":"背靠三巨头却销量下滑 阿维塔如何走出叫好不叫座","sentiment":"负面","topic":"品牌战略","reach":"科技媒体","url":"http://m.itbear.com.cn/html/2026-08/1502089.html"},
+  {"id":"E01","date":"2026-08-22","channel":"投诉反馈","platform":"黑猫投诉","source":"黑猫投诉","title":"07Pro+多次无预警急刹致儿童受伤 要求退车","sentiment":"负面","topic":"质量安全","reach":"单条投诉","url":"https://tousu.sina.com.cn/complaint/view/17401049238/"},
+  {"id":"E02","date":"2026-08-11","channel":"投诉反馈","platform":"黑猫投诉","source":"黑猫投诉","title":"电量瞬间清零+刹车助力衰减 集体投诉","sentiment":"负面","topic":"质量安全","reach":"集体投诉","url":"https://tousu.sina.cn/grp_comp/view/G17400729736"},
+  {"id":"E03","date":"2026-08-01","channel":"投诉反馈","platform":"微博/车质网","source":"微博@安徽论坛","title":"合肥07跑偏批量故障 30余车主 品牌未回应","sentiment":"负面","topic":"质量安全","reach":"30余车主","url":"https://m.weibo.cn/detail/5327134643980375"},
+  {"id":"E04","date":"2026-07-07","channel":"投诉反馈","platform":"黑猫投诉","source":"黑猫投诉","title":"新车20天ADS智驾异常/AEB失效/车门拉线故障","sentiment":"负面","topic":"质量智驾","reach":"单条投诉","url":"https://tousu.sina.cn/complaint/union_index?keyword=%E9%81%93%E6%AD%89"},
+  {"id":"E05","date":"2026-08-15","channel":"投诉反馈","platform":"车质网","source":"车质网","title":"阿维塔12八月多起投诉：智驾甩尾/屏裂/气囊故障","sentiment":"负面","topic":"质量销售","reach":"单车系多起","url":"https://m.12365auto.com/series/c-3807-1-1.shtml"},
+  {"id":"E06","date":"2026-07-22","channel":"投诉反馈","platform":"车质网","source":"车质网","title":"07/06/11多车型投诉：轮胎磨损/泵堵塞/刹车异响","sentiment":"负面","topic":"质量服务","reach":"多车型分散","url":"https://www.12365auto.com/zlts/760-0-0-0-0-0_0-0-0-0-0-761-0-1.shtml"},
+  {"id":"E07","date":"2026-08-21","channel":"投诉反馈","platform":"中国汽车质量网","source":"中国汽车质量网","title":"8月21日新增阿维塔11销售欺诈投诉","sentiment":"负面","topic":"服务投诉","reach":"官方公示","url":"https://wap.stockstar.com/detail/RB2026082100040668"},
+  {"id":"E08","date":"2026-07-07","channel":"投诉反馈","platform":"黑猫投诉","source":"黑猫投诉","title":"隐瞒活动变更 承诺电卡变IP兑换券","sentiment":"负面","topic":"服务营销","reach":"单条投诉","url":"https://tousu.sina.cn/complaint/union_index?keyword=%E9%81%93%E6%AD%89"},
+  {"id":"F01","date":"2026-07-27","channel":"分平台补充","platform":"微博/虎嗅/新浪/ZAKER","source":"虎嗅","title":"阿维塔官方创作者群被曝借极氪锁车热点拉踩竞品","sentiment":"负面","topic":"营销合规","reach":"多平台传播","url":"https://m.huxiu.com/article/4880640.html"},
+  {"id":"F02","date":"2026-08-17","channel":"分平台补充","platform":"ZAKER","source":"ZAKER","title":"阿维塔法务7/18声明：打击虚假门票/黑公关 悬赏100万","sentiment":"中性","topic":"品牌维权","reach":"法务声明","url":"https://app.myzaker.com/news/article.php?pk=6a82ebefb15ec0386035e245"},
+  {"id":"F03","date":"2026-08-16","channel":"分平台补充","platform":"什么值得买","source":"什么值得买","title":"阿维塔澄清华为争议 长安已与华为签全域战略合作","sentiment":"正面","topic":"华为合作","reach":"社区354作者","url":"https://post.m.smzdm.com/p/ae6d294q/"},
+  {"id":"F04","date":"2026-08-15","channel":"分平台补充","platform":"什么值得买","source":"什么值得买","title":"26款阿维塔07真实用车：全车满意 唯独电吸门太鸡肋","sentiment":"中性","topic":"产品细节","reach":"社区真实车主","url":"https://post.m.smzdm.com/p/aggdemk7/"},
+  {"id":"F05","date":"2026-08-12","channel":"分平台补充","platform":"什么值得买","source":"什么值得买","title":"07L首批交付两周：捋遍全网提车帖 区分真车主/营销/粉丝","sentiment":"中性","topic":"传播元分析","reach":"社区327作者","url":"https://post.m.smzdm.com/p/agg4zd4d/"},
+  {"id":"F06","date":"2026-08-08","channel":"分平台补充","platform":"凤凰网汽车","source":"凤凰网汽车","title":"07L发布会群访：陈卓称重回月销万台 年底21家旗舰店","sentiment":"正面","topic":"战略渠道","reach":"凤凰网汽车","url":"https://auto.ifeng.com/c/8vasjFZTnPm"},
+  {"id":"F07","date":"2026-07-29","channel":"分平台补充","platform":"爱奇艺","source":"爱奇艺踢车帮","title":"《帮看车》07L完整试驾 城市/高速/山路实测","sentiment":"正面","topic":"视频评测","reach":"13:49视频 3.4万粉","url":"http://www.iqiyi.com/v_22scrv8jzpw.html"},
+  {"id":"F08","date":"2026-08-08","channel":"分平台补充","platform":"央视频/微博","source":"央视频","title":"07L上市直播 尼格买提主持 张凌赫见证","sentiment":"正面","topic":"营销传播","reach":"120万人观看","url":"https://weibo.com/2/detail/5329693532229765"},
+  {"id":"F09","date":"2026-08-18","channel":"分平台补充","platform":"新浪汽车","source":"新浪汽车","title":"阿维塔06口碑登顶(原文称不到4月破2万,经核06系2025年4月上市,疑指06T)","sentiment":"正面","topic":"产品口碑","reach":"新浪汽车(表述已核)","url":"https://auto.sina.cn/2026-08-18/detail-ininsmwc7516206.d.html"},
+  {"id":"F10","date":"2026-08-11","channel":"分平台补充","platform":"今日头条","source":"今日头条车评观察员","title":"阿维塔优劣势：智驾设计强 设计两极分化 销量低迷","sentiment":"中性","topic":"优劣势分析","reach":"头条","url":"http://m.toutiao.com/group/7674921388704006700/"},
+  {"id":"G01","date":"2026-08-15","channel":"华中区域","platform":"湖北经视/临空港","source":"武汉临空港融媒","title":"阿维塔武汉东西湖旗舰店：全国首批华中唯一 7月开业 7500㎡五层","sentiment":"正面","topic":"区域渠道","reach":"本地融媒","url":"http://m.dongxihuqu.app.dawuhanapp.com/p/9715.html"},
+  {"id":"G02","date":"2026-08-13","channel":"华中区域","platform":"新浪汽车","source":"新浪汽车","title":"7500㎡华中最大旗舰店 智美七星服务 门店实测","sentiment":"正面","topic":"区域渠道","reach":"区域营销","url":"https://auto.sina.cn/2026-08-13/detail-inineqhm3377120.d.html"},
+  {"id":"G03","date":"2026-07-25","channel":"华中区域","platform":"易车号","source":"车轱辘","title":"阿维塔服务生态：长安服务竞赛销售一等奖 智美七星迭代","sentiment":"正面","topic":"区域服务","reach":"6173阅读","url":"https://hao.yiche.com/wenzhang/111762103/"},
+  {"id":"G04","date":"2026-08-01","channel":"华中区域","platform":"凤凰网安徽","source":"凤凰网安徽","title":"合肥车主投诉阿维塔07跑偏 5次维修未解决","sentiment":"负面","topic":"区域舆情","reach":"省级媒体","url":"https://m.weibo.cn/detail/5326766344507498"},
+  {"id":"G05","date":"2026-08-01","channel":"华中区域","platform":"微博(安徽本地)","source":"合淝通/安徽论坛/皖美生活圈","title":"合肥07跑偏事件3家安徽本地蓝V报道 30余车主 品牌未回应","sentiment":"负面","topic":"区域舆情","reach":"3家本地蓝V","url":"https://m.weibo.cn/detail/5327037491052691"},
+  {"id":"G06","date":"2026-07-26","channel":"华中区域","platform":"新浪汽车(合肥)","source":"新浪汽车","title":"合肥12家阿维塔4S店全名单(涉事包河/庐阳店在列)","sentiment":"中性","topic":"区域渠道","reach":"本地导购","url":"https://auto.sina.cn/2026-07-26/detail-inikawyr1055696.d.html"},
+  {"id":"G07","date":"2026-07-26","channel":"华中区域","platform":"易车(郑州)","source":"郑州梧桐店","title":"郑州门店促销:06置换优惠2万/06T优惠0.4万 限时执行","sentiment":"中性","topic":"区域促销","reach":"经销商页","url":"https://dealer.yiche.com/100235508/news.html"},
+  {"id":"G08","date":"2026-08-03","channel":"华中区域","platform":"太平洋汽车(长沙)","source":"太平洋汽车","title":"长沙5家阿维塔门店指南 预约试驾指引","sentiment":"中性","topic":"区域渠道","reach":"本地导购","url":"http://www.pcauto.com.cn/hq/1300909.html"},
+  {"id":"G09","date":"2026-08-01","channel":"华中区域","platform":"车质网(长沙)","source":"车质网","title":"长沙中南汽车世界店售后评分0.0(无评价沉淀)","sentiment":"中性","topic":"区域渠道","reach":"无评价","url":"https://www.12365auto.com/dealer/index/118598.shtml"},
+  {"id":"G10","date":"2026-08-17","channel":"华中区域","platform":"汽车之家(长沙)","source":"汽车之家论坛","title":"湖南省首台07L提车 华为智驾5.0丝滑","sentiment":"正面","topic":"区域口碑","reach":"22浏览","url":"https://club.m.autohome.com.cn/bbs/thread/994849f371a38ea1/115877678-1.html"},
+  {"id":"H01","date":"2026-08-20","channel":"竞品参照","platform":"汽车圈","source":"汽车圈","title":"[问界]M7疯狂加速事故罗生门 官方称非智驾/油门100%","sentiment":"负面","topic":"智驾安全","reach":"行业","url":"https://www.qicheq.com/che/29306852db.html"},
+  {"id":"H02","date":"2026-08-21","channel":"竞品参照","platform":"网易","source":"网易新闻","title":"[问界]口碑腰斩讨论:7月销量4万→2万 M7换代背刺","sentiment":"负面","topic":"销量口碑","reach":"行业","url":"https://c.m.163.com/news/a/L4U178PM05568E36.html"},
+  {"id":"H03","date":"2026-08-19","channel":"竞品参照","platform":"新浪财经","source":"新浪财经","title":"[问界]赛力斯中报巨亏17.17亿 华为税+商标摊销","sentiment":"负面","topic":"财务","reach":"财经媒体","url":"https://k.sina.com.cn/article_5952915720_162d2490806704q0g4.html"},
+  {"id":"H04","date":"2026-08-03","channel":"竞品参照","platform":"海峡都市报","source":"海峡都市报","title":"[问界]福州门店承诺积分半年未兑现 补偿6次保养","sentiment":"负面","topic":"服务","reach":"地方媒体","url":"https://m.weibo.cn/detail/5327932652262040"},
+  {"id":"H05","date":"2026-08-08","channel":"竞品参照","platform":"虎扑","source":"虎扑","title":"[问界]车质网投诉率高 老车主抱团维权","sentiment":"负面","topic":"口碑","reach":"论坛","url":"https://bbs.hupu.com/641698739.html"},
+  {"id":"H06","date":"2026-07-26","channel":"竞品参照","platform":"澎湃新闻","source":"澎湃新闻","title":"[极氪]跨境锁车30余小时 上线跨境守护一键解锁","sentiment":"负面","topic":"软件风控","reach":"热搜","url":"https://m.thepaper.cn/tag/3405333"},
+  {"id":"H07","date":"2026-08-10","channel":"竞品参照","platform":"界面新闻","source":"界面新闻","title":"[极氪]7X充电站起火 称曾严重碰撞未官方维修","sentiment":"负面","topic":"安全","reach":"热搜","url":"https://finance.eastmoney.com/a/202608103836293942.html"},
+  {"id":"H08","date":"2026-08-21","channel":"竞品参照","platform":"中国汽车召回网","source":"中国汽车召回网","title":"[极氪]召回92658辆007/X 应急拉手隐患","sentiment":"负面","topic":"质量召回","reach":"官方召回","url":"https://cj.sina.cn/articles/view/1644983660/620c756c02001um8w"},
+  {"id":"H09","date":"2026-08-17","channel":"竞品参照","platform":"新浪财经","source":"黄河新闻网","title":"[极氪]安全防线失守讨论 但H1交付17.8万+97% 7月新高","sentiment":"中性","topic":"行业分析","reach":"财经媒体","url":"http://finance.sina.cn/2026-08-17/detail-ininreaq9064862.d.html"},
+  {"id":"H10","date":"2026-08-12","channel":"竞品参照","platform":"新浪汽车","source":"新浪汽车","title":"[蔚来]李斌道歉视频 电池论被断章取义","sentiment":"负面","topic":"高管言论","reach":"行业","url":"https://auto.sina.cn/2026-08-12/detail-inimzivx4097243.d.html"},
+  {"id":"H11","date":"2026-08-23","channel":"竞品参照","platform":"ITBear","source":"鞭牛士","title":"[蔚来]法务部报案乐道谣言 金角财经反诉蔚来名誉侵权","sentiment":"负面","topic":"法务舆论","reach":"行业","url":"http://m.itbear.com.cn/html/2026-08/1481770.html"},
+  {"id":"H12","date":"2026-08-20","channel":"竞品参照","platform":"新浪汽车","source":"车评市集馆","title":"[小米]YU7热销18小时锁单24万 遭AI造谣 博主获刑1年8个月","sentiment":"正面","topic":"销量/黑公关","reach":"现象级","url":"https://auto.sina.cn/2026-08-20/detail-ininyfvh7977156.d.html"},
+  {"id":"H13","date":"2026-08-19","channel":"竞品参照","platform":"南方+","source":"南方+","title":"[行业]神行者官网套用蔚来ES8渲染图被曝抄袭","sentiment":"负面","topic":"抄袭","reach":"行业媒体","url":"https://www.nfnews.com/content/0oXLEJdao9.html"},
+  {"id":"I01","date":"2026-06-30","channel":"业务节点","platform":"港交所/证券时报","source":"证券时报","title":"阿维塔二度递表港交所 招股书提华为66次 2025营收256.31亿","sentiment":"中性","topic":"资本节点","reach":"权威财经","url":"https://www.stcn.com/article/detail/3994522.html"},
+  {"id":"I02","date":"2026-05-27","channel":"业务节点","platform":"经济通","source":"经济通","title":"首版招股书满6个月失效 称技术性流程将重新递交","sentiment":"中性","topic":"资本节点","reach":"财经媒体","url":"https://202.62.215.18/www/tc/stocks/ipo-news-article/20260527846/"},
+  {"id":"I03","date":"2026-08-08","channel":"业务节点","platform":"太平洋汽车","source":"太平洋汽车","title":"陈卓群访:07L助推重回月销万台 年底21家旗舰店 12月登陆欧洲","sentiment":"中性","topic":"高管发言","reach":"群访","url":"https://mpcauto.pcvideo.com.cn/hj/article/3483464.html"},
+  {"id":"I04","date":"2026-08-11","channel":"业务节点","platform":"新京报","source":"新京报","title":"陈卓专访:高端体验不能降级 坚持原创设计 细分场景开发","sentiment":"中性","topic":"高管发言","reach":"权威媒体","url":"https://www.bjnews.com.cn/detail/1786451954169366.html"},
+  {"id":"I05","date":"2026-08-11","channel":"业务节点","platform":"东方财富/网通社","source":"网通社","title":"陈卓:不能沦为硬件整合商 Q4推六座旗舰 IPO稳步推进","sentiment":"中性","topic":"高管发言","reach":"财经媒体","url":"https://auto.eastmoney.com/a/cqft.html"},
+  {"id":"I06","date":"2026-08-11","channel":"业务节点","platform":"东方财富","source":"东方财富","title":"雍军:引望股东身份不是全部 智驾双重赋能","sentiment":"中性","topic":"高管发言","reach":"财经媒体","url":"https://auto.eastmoney.com/a/cqft.html"},
+  {"id":"I07","date":"2026-08-17","channel":"业务节点","platform":"运营商财经网","source":"运营商财经网","title":"陈卓回应IPO:按监管要求稳步推进报批","sentiment":"中性","topic":"高管发言","reach":"行业媒体","url":"https://tags.sina.com.cn/%E9%98%BF%E7%BB%B4%E5%A1%94%E7%A7%91%E6%8A%80"},
+  {"id":"I08","date":"2026-08-21","channel":"业务节点","platform":"企查查","source":"企查查","title":"工商信息:法定代表人陈卓 员工3666人 国家级独角兽 称7月口碑排名升30位至第2","sentiment":"中性","topic":"背景信息","reach":"企业信息","url":"https://www.qcc.com/cfinance/e160f2044585bbd2ae07afee723dae60.html"}
+];
+
+const S_HEX={"正面":"#008300","中性":"#898781","负面":"#e34948"};
+const SELF = DATA.filter(d=>d.channel!=="竞品参照" && d.channel!=="业务节点");
+
+// KPI（仅自身）
+(function(){
+  const c={正面:0,中性:0,负面:0};SELF.forEach(d=>c[d.sentiment]++);
+  const t=SELF.length;
+  document.getElementById('kpi-total').textContent=t;
+  document.getElementById('kpi-pos').textContent=c.正面;
+  document.getElementById('kpi-neu').textContent=c.中性;
+  document.getElementById('kpi-neg').textContent=c.负面;
+  document.getElementById('kpi-pos-lbl').textContent=`正面（${(c.正面/t*100).toFixed(1)}%）`;
+  document.getElementById('kpi-neu-lbl').textContent=`中性（${(c.中性/t*100).toFixed(1)}%）`;
+  document.getElementById('kpi-neg-lbl').textContent=`负面（${(c.负面/t*100).toFixed(1)}%）`;
+  document.getElementById('donut-n').textContent=t;
+  let acc=0,grad=[];
+  [["正面",c.正面],["中性",c.中性],["负面",c.负面]].forEach(([n,v])=>{const from=acc/t*100;acc+=v;const to=acc/t*100;grad.push(`${S_HEX[n]} ${from}% ${to}%`)});
+  document.getElementById('donut').style.background=`conic-gradient(${grad.join(',')})`;
+  const lg=document.getElementById('sent-legend');
+  [["正面",c.正面],["中性",c.中性],["负面",c.负面]].forEach(([n,v])=>{lg.innerHTML+=`<div class="row"><span class="sw" style="background:${S_HEX[n]}"></span>${n}<span class="val">${v}（${(v/t*100).toFixed(1)}%）</span></div>`});
+})();
+
+function platformGroup(p,ch){
+  if(ch==="华中区域")return"华中区域(鄂皖豫湘)";
+  if(ch==="竞品参照")return"竞品参照";
+  if(ch==="业务节点")return"业务节点";
+  if(p.includes("微博"))return"微博";
+  if(p.includes("汽车之家"))return"汽车之家";
+  if(p.includes("易车"))return"易车";
+  if(p.includes("车质网")||p.includes("质量网"))return"车质网/质量网";
+  if(p.includes("搜狐"))return"搜狐汽车";
+  if(p.includes("黑猫"))return"投诉平台";
+  if(p.includes("什么值得买"))return"什么值得买";
+  if(p.includes("爱奇艺")||p.includes("央视频"))return"视频平台";
+  if(p.includes("头条")||p.includes("ZAKER")||p.includes("网易")||p.includes("新浪")||p.includes("ITBear")||p.includes("凤凰")||p.includes("中关村")||p.includes("虎嗅"))return"行业/资讯媒体";
+  if(p.includes("主流媒体"))return"主流媒体";
+  return p;
+}
+
+// 平台分布（仅自身）
+(function(){
+  const c={};SELF.forEach(d=>{const g=platformGroup(d.platform,d.channel);c[g]=(c[g]||0)+1});
+  const max=Math.max(...Object.values(c));
+  const el=document.getElementById('platform-bars');
+  Object.entries(c).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>{
+    el.innerHTML+=`<div class="bar-row"><span class="name">${k}</span><div class="bar-track"><div class="bar-fill" style="width:${v/max*100}%;background:var(--c1)"></div></div><span class="cnt">${v}</span></div>`;
+  });
+  const pf=document.getElementById('f-platform'),pf2=document.getElementById('pf-filter');
+  Object.keys(c).sort().forEach(k=>{pf.innerHTML+=`<option>${k}</option>`;pf2.innerHTML+=`<option>${k}</option>`});
+})();
+
+// 平台×情感（仅自身）
+(function(){
+  const g={};SELF.forEach(d=>{const p=platformGroup(d.platform,d.channel);g[p]=g[p]||{正面:0,中性:0,负面:0};g[p][d.sentiment]++});
+  const el=document.getElementById('ps-chart');
+  Object.entries(g).sort((a,b)=>{const t=v=>v[1].正面+v[1].中性+v[1].负面;return t(b)-t(a)}).forEach(([p,v])=>{
+    const total=v.正面+v.中性+v.负面;
+    let html=`<div class="ps-track">`;
+    [["正面",v.正面],["中性",v.中性],["负面",v.负面]].forEach(([s,n])=>{if(n>0)html+=`<div class="ps-seg" style="width:${n/total*100}%;background:${S_HEX[s]}" title="${s}${n}">${n/total>0.12?n:''}</div>`});
+    html+=`</div>`;
+    el.innerHTML+=`<div class="ps-row"><span class="name">${p}</span>${html}<span class="tot">${total}条</span></div>`;
+  });
+})();
+
+// 话题分布（仅自身）
+(function(){
+  const group={"产品上市":"产品","产品评测":"产品","产品交付":"产品","产品战略":"产品","产品争议":"产品","产品细节":"产品","产品口碑":"产品","产品营销":"营销","车主提车":"产品","市场热度":"市场","口碑数据":"口碑","车主口碑":"口碑","优劣势分析":"行业","传播元分析":"传播","区域渠道":"区域","区域服务":"区域","区域舆情":"区域","区域促销":"区域","区域口碑":"区域",
+    "营销品牌":"营销","品牌制造":"品牌","品牌合作":"品牌","品牌战略":"品牌","品牌维权":"品牌","营销合规":"营销","出海合作":"品牌","战略渠道":"渠道",
+    "销量":"销量","销量策略":"销量","技术智驾":"技术","技术对比":"技术","视频评测":"产品",
+    "华为合作":"华为合作","竞品对比":"竞品对比","质量安全":"质量维权","质量智驾":"质量维权","质量销售":"质量维权","质量服务":"质量维权","质量维权":"质量维权","服务投诉":"服务","服务营销":"服务","营销传播":"营销"};
+  const c={};SELF.forEach(d=>{const g=group[d.topic]||d.topic;c[g]=(c[g]||0)+1});
+  const max=Math.max(...Object.values(c));
+  const colorMap={"产品":"#2a78d6","营销":"#eb6834","品牌":"#1baf7a","销量":"#eda100","技术":"#4a3aa7","华为合作":"#e87ba4","竞品对比":"#008300","质量维权":"#e34948","服务":"#d95926","口碑":"#199e70","市场":"#c98500","渠道":"#9085e9","区域":"#5598e7","行业":"#898781","传播":"#3987e5"};
+  const el=document.getElementById('topic-bars');
+  Object.entries(c).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>{
+    el.innerHTML+=`<div class="bar-row"><span class="name">${k}</span><div class="bar-track"><div class="bar-fill" style="width:${v/max*100}%;background:${colorMap[k]||'#898781'}"></div></div><span class="cnt">${v}</span></div>`;
+  });
+})();
+
+// 时间线（仅自身，支持平台筛选）
+function renderTimeline(pf){
+  const filtered=pf?SELF.filter(d=>platformGroup(d.platform,d.channel)===pf):SELF;
+  const byDay={};filtered.forEach(d=>{byDay[d.date]=byDay[d.date]||{正面:0,中性:0,负面:0,items:[]};byDay[d.date][d.sentiment]++;byDay[d.date].items.push(d)});
+  const days=Object.keys(byDay).sort();
+  const maxTotal=Math.max(1,...days.map(d=>byDay[d].items.length));
+  const el=document.getElementById('tl-bars');el.innerHTML='';
+  document.getElementById('tl-note').textContent=pf?`当前显示【${pf}】${filtered.length}条`:`全部平台 ${filtered.length} 条（仅阿维塔自身）`;
+  days.forEach(date=>{
+    const d=byDay[date];const total=d.items.length;
+    const bar=document.createElement('div');bar.className='tl-bar';
+    let segsHtml="";
+    [["负面",d.负面],["中性",d.中性],["正面",d.正面]].forEach(([s,v])=>{if(v>0)segsHtml+=`<div class="tl-seg" style="height:${v/maxTotal*100}%;background:${S_HEX[s]}"></div>`});
+    const tipItems=d.items.map(x=>`${x.id} ${x.sentiment}·${x.title.slice(0,12)}`).join('<br>');
+    bar.innerHTML=`${segsHtml}<div class="tip"><b>${date}</b>（${total}条）<br>${tipItems}</div>`;
+    el.appendChild(bar);
+  });
+}
+renderTimeline("");
+document.getElementById('pf-filter').addEventListener('change',e=>renderTimeline(e.target.value));
+
+// 关键事件时间轴
+const EVENTS=[
+  {date:"2026-07-07",cls:"neg",pf:"黑猫投诉",title:"鲤城店新车多故障投诉",desc:"提车20天ADS智驾异常、AEB失效、车门拉线故障",ref:"E04"},
+  {date:"2026-07-27",cls:"neg",pf:"微博/虎嗅/多平台",title:"官方创作者群被曝拉踩极氪",desc:"借极氪锁车热点引导创作者拉踩竞品，截图流出；内部人称供应商乌龙",ref:"F01/B08"},
+  {date:"2026-08-01",cls:"neg",pf:"微博/车质网/安徽本地",title:"合肥07跑偏批量故障曝光",desc:"30余车主同款跑偏，五次检修未解决，安徽4家地方蓝V报道，品牌未回应",ref:"E03/G04/G05"},
+  {date:"2026-08-02",cls:"neu",pf:"主流媒体",title:"7月销量公布：交付7626辆",desc:"1-7月累计约35245辆；零售口径3853辆、行业第60",ref:"A04/B05"},
+  {date:"2026-08-08",cls:"pos",pf:"主流媒体/视频平台",title:"阿维塔07L正式上市",desc:"22.99万起全系标配华为ADS 5，张凌赫代言，央视频直播120万人观看",ref:"A02/F08"},
+  {date:"2026-08-10",cls:"neu",pf:"主流媒体/微博",title:"'华为合作非必要项'误读与辟谣",desc:"雍军言论被截取，阿维塔澄清仅指无需专属智驾定制",ref:"A03/A07"},
+  {date:"2026-08-11",cls:"neg",pf:"黑猫投诉",title:"电量清零+刹车衰减集体投诉",desc:"要求调取EDR、履行三包，涉三电与制动安全",ref:"E02"},
+  {date:"2026-08-16",cls:"pos",pf:"主流媒体/什么值得买",title:"华为员工5000台交付+长安华为签全域协议",desc:"首批07L松山湖交付；长安与华为签全域战略合作，合作反升级",ref:"A05/F03"},
+  {date:"2026-08-20",cls:"pos",pf:"主流媒体/汽车之家",title:"数智工厂取消高温假+07L线下实火",desc:"工厂冲刺产能保交付；垂直平台多帖称到店试驾排队",ref:"A06/C07"},
+  {date:"2026-08-21",cls:"pos",pf:"主流媒体/微博/华中",title:"成都车展全系亮相+武汉华中旗舰店",desc:"07L/06T/12/11参展；粉丝父亲全款购车登热搜阅读破5000万；华中唯一旗舰店7月开业获本地融媒报道",ref:"A09/A10/G01"},
+  {date:"2026-08-22",cls:"neg",pf:"黑猫投诉",title:"07Pro+急刹致儿童受伤投诉",desc:"多次无预警急刹致后排儿童磕碰，4S店称非激光雷达版算力不足，涉诉19.5万",ref:"E01"}
+];
+(function(){
+  const el=document.getElementById('events');
+  EVENTS.forEach(e=>{
+    const item=DATA.find(d=>d.id===e.ref.split('/')[0]);
+    const url=item?item.url:'';
+    el.innerHTML+=`<div class="ev ${e.cls}"><div class="date">${e.date}</div><div class="ttl">${e.title}<span class="pf">${e.pf}</span></div><div class="desc">${e.desc}</div><div class="ref">素材编号：${e.ref} ${url?`· <a href="${url}" target="_blank">查看原文</a>`:''}</div></div>`;
+  });
+})();
+
+// 明细表（全量88条）
+(function(){
+  const fCh=document.getElementById('f-channel'),fPlat=document.getElementById('f-platform'),fSent=document.getElementById('f-sentiment'),fTopic=document.getElementById('f-topic');
+  [...new Set(DATA.map(d=>d.channel))].forEach(c=>fCh.innerHTML+=`<option>${c}</option>`);
+  [...new Set(DATA.map(d=>d.topic))].sort().forEach(t=>fTopic.innerHTML+=`<option>${t}</option>`);
+  let sortK='date',sortAsc=true;
+  function render(){
+    const fc=fCh.value,fp=fPlat.value,fs=fSent.value,ft=fTopic.value;
+    let rows=DATA.filter(d=>(!fc||d.channel===fc)&&(!fp||platformGroup(d.platform,d.channel)===fp)&&(!fs||d.sentiment===fs)&&(!ft||d.topic===ft));
+    rows.sort((a,b)=>{const x=a[sortK],y=b[sortK];return (x<y?-1:x>y?1:0)*(sortAsc?1:-1)});
+    document.getElementById('count-note').textContent=`显示 ${rows.length} / ${DATA.length} 条`;
+    document.getElementById('tbody').innerHTML=rows.map(d=>{
+      const isRef=(d.channel==="竞品参照"||d.channel==="业务节点");
+      return `<tr>
+        <td class="id">${d.id}</td>
+        <td style="white-space:nowrap">${d.date.slice(5)}</td>
+        <td><span class="pill ${isRef?'ref':'pf'}">${d.channel}</span></td>
+        <td class="src">${platformGroup(d.platform,d.channel)}</td>
+        <td class="ttl-cell"><a href="${d.url}" target="_blank">${d.title}</a><div class="src">${d.source}</div></td>
+        <td class="src">${d.topic}</td>
+        <td><span class="pill ${d.sentiment==='正面'?'pos':d.sentiment==='负面'?'neg':'neu'}">${d.sentiment}</span></td>
+        <td class="reach">${d.reach}</td>
+      </tr>`;
+    }).join('');
+  }
+  [fCh,fPlat,fSent,fTopic].forEach(s=>s.addEventListener('change',render));
+  document.getElementById('f-reset').addEventListener('click',()=>{fCh.value='';fPlat.value='';fSent.value='';fTopic.value='';render()});
+  document.querySelectorAll('th[data-k]').forEach(th=>th.addEventListener('click',()=>{const k=th.dataset.k;if(sortK===k)sortAsc=!sortAsc;else{sortK=k;sortAsc=true}render()}));
+  render();
+})();
+</script>
+</body>
+</html>
